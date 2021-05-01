@@ -2,9 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Moq;
-using RentalCars.Web.Api.Controllers;
 using RentalCars.Web.Business.Exceptions;
 using RentalCars.Web.Business.Models;
 using RentalCars.Web.Business.Services;
@@ -82,7 +80,8 @@ namespace RentalCars.Tests
             var startDate = DateTime.Parse("2021-05-05");
             var endDate = DateTime.Parse("2021-06-05");
                 
-            await service.RentCar(new RentCarModel(firstCar.Id, customer.Id, "ABC", startDate, endDate));
+            await service.RentCar(new RentCarModel(
+                Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate));
 
             var booking = context.Bookings.First();
             Assert.Equal(firstCar.Id, booking.CarId);
@@ -112,7 +111,8 @@ namespace RentalCars.Tests
             var endDate = DateTime.Parse("2021-05-10");
 
             async Task RentCarFn() => 
-                await service.RentCar(new RentCarModel(firstCar.Id, customer.Id, "ABC", startDate, endDate));
+                await service.RentCar(new RentCarModel(
+                    Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate));
 
             await Assert.ThrowsAsync<CarNotAvailable>(RentCarFn);
         }

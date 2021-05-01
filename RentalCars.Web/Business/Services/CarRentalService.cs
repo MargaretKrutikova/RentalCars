@@ -75,7 +75,7 @@ namespace RentalCars.Web.Business.Services
 
             var booking = new RentalBooking()
             {
-                Id = Guid.NewGuid(),
+                Id = model.BookingId,
                 Car = carToRent,
                 BookingNumber = model.BookingNumber,
                 StartDate = model.StartDate,
