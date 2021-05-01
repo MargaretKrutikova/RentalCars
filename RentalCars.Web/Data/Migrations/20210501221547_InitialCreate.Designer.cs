@@ -9,7 +9,7 @@ using RentalCars.Web.Data;
 namespace RentalCars.Web.Data.Migrations
 {
     [DbContext(typeof(RentalCarsDbContext))]
-    [Migration("20210501151943_InitialCreate")]
+    [Migration("20210501221547_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,35 +41,35 @@ namespace RentalCars.Web.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("452fcaca-2ea9-4cdf-b655-5ecfa29fb5b8"),
+                            Id = new Guid("b692dedd-6d32-4cc6-b9e1-5cc90377418e"),
                             Category = "Compact",
                             Mileage = 0f,
                             Model = "Zaporozhets"
                         },
                         new
                         {
-                            Id = new Guid("a43912b6-af24-4e2e-91af-37b6a0d8fdb6"),
+                            Id = new Guid("96e8e24c-2892-4a26-9643-6f45594d24e4"),
                             Category = "Premium",
                             Mileage = 0f,
                             Model = "Lamborghini Huracán"
                         },
                         new
                         {
-                            Id = new Guid("8a7db1ed-c450-44cc-93ce-49df69258862"),
+                            Id = new Guid("9e542e08-0cdb-4e97-8706-0098d706cb14"),
                             Category = "Minivan",
                             Mileage = 0f,
                             Model = "Volvo"
                         },
                         new
                         {
-                            Id = new Guid("dc552f72-2edf-45ff-9257-690158b12eaa"),
+                            Id = new Guid("18d3bc01-f34f-4b82-9e13-7e0c48aaa111"),
                             Category = "Premium",
                             Mileage = 0f,
                             Model = "Porsche Panamera"
                         },
                         new
                         {
-                            Id = new Guid("a5ef600f-1dcb-47b9-be60-f35991dde2d6"),
+                            Id = new Guid("12df1935-375d-4a05-a0b9-c2db5aa22841"),
                             Category = "Compact",
                             Mileage = 0f,
                             Model = "Lada Riva"
@@ -96,15 +96,9 @@ namespace RentalCars.Web.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4c0363c5-e75c-474b-902e-733632603d5c"),
+                            Id = new Guid("3b19a1ff-e68b-4929-ab8b-3c6f5ed094e4"),
                             DateOfBirth = new DateTime(1990, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "test"
-                        },
-                        new
-                        {
-                            Id = new Guid("f1bdd878-fbcf-4ae4-a83c-b2d66fc5d947"),
-                            DateOfBirth = new DateTime(1990, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "test2"
+                            Email = "test@testsson.com"
                         });
                 });
 
@@ -143,26 +137,6 @@ namespace RentalCars.Web.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Bookings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("4b12b511-0f4d-4356-870e-d40ff7dd9499"),
-                            BookingNumber = "ABC12",
-                            CarId = new Guid("452fcaca-2ea9-4cdf-b655-5ecfa29fb5b8"),
-                            CustomerId = new Guid("4c0363c5-e75c-474b-902e-733632603d5c"),
-                            EndDate = new DateTime(2021, 6, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartDate = new DateTime(2021, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = new Guid("31bb81bc-c9b6-4bb7-9c15-2a88c59ea437"),
-                            BookingNumber = "ABC13",
-                            CarId = new Guid("452fcaca-2ea9-4cdf-b655-5ecfa29fb5b8"),
-                            CustomerId = new Guid("f1bdd878-fbcf-4ae4-a83c-b2d66fc5d947"),
-                            EndDate = new DateTime(2021, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartDate = new DateTime(2021, 7, 12, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("RentalCars.Web.Data.RentalReturn", b =>
@@ -171,8 +145,8 @@ namespace RentalCars.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Mileage")
-                        .HasColumnType("TEXT");
+                    b.Property<float>("Mileage")
+                        .HasColumnType("REAL");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
