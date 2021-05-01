@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RentalCars.Web.Api.Models;
+using RentalCars.Web.Business.Exceptions;
 using RentalCars.Web.Business.Services;
 using RentalCars.Web.Data;
 
@@ -28,9 +29,9 @@ namespace RentalCars.Web.Api.Controllers
             {
                 await _customerService.RegisterCustomer(customer);
             }
-            catch (Exception ex)
+            catch (EmailAlreadyExists)
             {
-                return BadRequest(ex.Message); // shouldn't be done in a production app
+                return BadRequest("Email already registered");
             }
 
             return Ok(customerId);

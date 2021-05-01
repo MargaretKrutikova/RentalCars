@@ -43,8 +43,15 @@ namespace RentalCars.Web.Api.Controllers
         {
             var bookingNumber = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
-            await _carRentalService.RentCar(new RentCarModel(inputModel.CarId, inputModel.CustomerId, bookingNumber,
-                inputModel.StartDate, inputModel.EndDate));
+            try
+            {
+                await _carRentalService.RentCar(new RentCarModel(inputModel.CarId, inputModel.CustomerId, bookingNumber,
+                    inputModel.StartDate, inputModel.EndDate));
+            }
+            catch (Exception ex)
+            {
+                return this.DomainExceptionToResult(ex);
+            }
             
             return NoContent();
         }
@@ -53,9 +60,17 @@ namespace RentalCars.Web.Api.Controllers
         public async Task<IActionResult> Return(ReturnCarInputModel inputModel)
         {
             var returnDate = new DateTime();
-            await _carRentalService.ReturnCar(
-                new ReturnCarModel(inputModel.BookingNumber, inputModel.CustomerId, returnDate, inputModel.Mileage));
-            
+
+            try
+            {
+                await _carRentalService.ReturnCar(
+                    new ReturnCarModel(inputModel.BookingNumber, inputModel.CustomerId, returnDate, inputModel.Mileage));
+            }
+            catch (Exception ex)
+            {
+                return this.DomainExceptionToResult(ex);
+            }
+
             return NoContent();
         }
     }
