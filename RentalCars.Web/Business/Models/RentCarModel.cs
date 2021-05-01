@@ -2,9 +2,13 @@ using System;
 
 namespace RentalCars.Web.Business.Models
 {    
-    public record ReturnCarModel(string BookingNumber, Guid CustomerId, DateTime ReturnDate, float Mileage);
+    public record ReturnCarModel(
+        string BookingNumber, 
+        Guid CustomerId,
+        DateTime ReturnDate, 
+        float Mileage);
 
-    public class RentCarModel
+    public record RentCarModel
     {
         public Guid CarId { get; init; } 
         public Guid CustomerId { get; init; } 

@@ -29,6 +29,7 @@ namespace RentalCars.Web
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<ICarRentalService, CarRentalService>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IRentalPriceCalculator, RentalPriceCalculator>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -63,15 +63,15 @@ namespace RentalCars.Web.Api.Controllers
 
             try
             {
-                await _carRentalService.ReturnCar(
+                var rentalReturn = await _carRentalService.ReturnCar(
                     new ReturnCarModel(inputModel.BookingNumber, inputModel.CustomerId, returnDate, inputModel.Mileage));
+                
+                return Ok(new ReturnCarOutputModel {Price = rentalReturn.Price});
             }
             catch (Exception ex)
             {
                 return this.DomainExceptionToResult(ex);
             }
-
-            return NoContent();
         }
     }
 }
