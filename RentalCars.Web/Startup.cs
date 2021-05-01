@@ -6,8 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using RentalCars.Web.Data;
-using CarRentalService = RentalCars.Web.Business.CarRentalService;
-using ICarRentalService = RentalCars.Web.Business.ICarRentalService;
+using CarRentalService = RentalCars.Web.Business.Services.CarRentalService;
+using ICarRentalService = RentalCars.Web.Business.Services.ICarRentalService;
 
 namespace RentalCars.Web
 {
