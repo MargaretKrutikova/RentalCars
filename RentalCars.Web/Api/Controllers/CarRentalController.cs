@@ -58,7 +58,7 @@ namespace RentalCars.Web.Api.Controllers
                 return this.DomainExceptionToResult(ex);
             }
             
-            return NoContent();
+            return Ok(new RentCarOutputModel(bookingNumber));
         }
         
         [HttpPost("return")]
@@ -71,7 +71,7 @@ namespace RentalCars.Web.Api.Controllers
                 var rentalReturn = await _carRentalService.ReturnCar(
                     new ReturnCarModel(inputModel.BookingNumber, inputModel.CustomerId, returnDate, inputModel.Mileage));
                 
-                return Ok(new ReturnCarOutputModel {Price = rentalReturn.Price});
+                return Ok(new ReturnCarOutputModel(rentalReturn.Price));
             }
             catch (Exception ex)
             {
