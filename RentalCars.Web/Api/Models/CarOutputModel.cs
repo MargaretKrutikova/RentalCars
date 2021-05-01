@@ -5,9 +5,9 @@ namespace RentalCars.Web.Api.Models
 {
     public class CarOutputModel
     {
-        public Guid Id { get; set; }
-        public CarCategory Category { get; set; }
-        public string Model { get; set; }
-        public float Mileage { get; set; }
+        public Guid Id { get; init; }
+        public CarCategory Category { get; init; }
+        public string Model { get; init; }
+        public float Mileage { get; init; }
     }
 }

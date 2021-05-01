@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using RentalCars.Web.Business.Services;
 using RentalCars.Web.Data;
 using CarRentalService = RentalCars.Web.Business.Services.CarRentalService;
 using ICarRentalService = RentalCars.Web.Business.Services.ICarRentalService;
@@ -27,6 +28,7 @@ namespace RentalCars.Web
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<ICarRentalService, CarRentalService>();
+            services.AddScoped<ICustomerService, CustomerService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
