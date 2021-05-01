@@ -9,7 +9,7 @@ namespace RentalCars.Web.Api.Models
         public Guid CarId { get; init; } 
         
         [Required]
-        public Guid CustomerId { get; init; } 
+        public string CustomerEmail { get; init; } 
         
         [Required]
         public DateTime StartDate { get; init; } 

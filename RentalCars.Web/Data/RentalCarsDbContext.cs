@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace RentalCars.Web.Data
@@ -37,38 +36,12 @@ namespace RentalCars.Web.Data
             {
                 new()
                 {
-                    Id = Guid.NewGuid(), Email = "test",
+                    Id = Guid.NewGuid(), Email = "test@testsson.com",
                     DateOfBirth = DateTime.Parse("1990-01-01")
-                },
-                new()
-                {
-                    Id = Guid.NewGuid(), Email = "test2",
-                    DateOfBirth = DateTime.Parse("1990-01-01")
-                },
+                }
             };
             modelBuilder.Entity<Car>().HasData(cars);
             modelBuilder.Entity<Customer>().HasData(customers);
-            
-            modelBuilder.Entity<RentalBooking>().HasData(new RentalBooking[] {
-                new()
-                {
-                    Id = Guid.NewGuid(), 
-                    BookingNumber = "ABC12",
-                    CustomerId = customers.First().Id,
-                    CarId = cars.First().Id,
-                    StartDate = DateTime.Parse("2021-06-01"),
-                    EndDate = DateTime.Parse("2021-06-24")
-                },
-                new()
-                {
-                    Id = Guid.NewGuid(), 
-                    BookingNumber = "ABC13",
-                    CustomerId = customers.Skip(1).First().Id,
-                    CarId = cars.First().Id,
-                    StartDate = DateTime.Parse("2021-07-12"),
-                    EndDate = DateTime.Parse("2021-07-16")
-                }
-            });
         }
     }
 }

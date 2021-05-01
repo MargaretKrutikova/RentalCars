@@ -67,7 +67,7 @@ namespace RentalCars.Web.Business.Services
         {
             AssertRentalRangeValid(model.StartDate, model.EndDate, currentDate);
             var customer = 
-                await _context.Customers.FirstOrDefaultAsync(c => c.Id == model.CustomerId);
+                await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.CustomerEmail);
             
             if (customer == null)
                 throw new CustomerNotFound();

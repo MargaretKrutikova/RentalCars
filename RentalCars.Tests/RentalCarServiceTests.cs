@@ -82,7 +82,7 @@ namespace RentalCars.Tests
             var currentDate = DateTime.Parse("2021-05-04");  
             
             await service.RentCar(new RentCarModel(
-                Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate), currentDate);
+                Guid.NewGuid(), firstCar.Id, customer.Email, "ABC", startDate, endDate), currentDate);
 
             var booking = context.Bookings.First();
             Assert.Equal(firstCar.Id, booking.CarId);
@@ -114,7 +114,7 @@ namespace RentalCars.Tests
 
             async Task RentCarFn() => 
                 await service.RentCar(new RentCarModel(
-                    Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate), currentDate);
+                    Guid.NewGuid(), firstCar.Id, customer.Email, "ABC", startDate, endDate), currentDate);
 
             await Assert.ThrowsAsync<CarNotAvailable>(RentCarFn);
         }

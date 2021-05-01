@@ -45,7 +45,7 @@ namespace RentalCars.Web.Api.Controllers
             {
                 await _carRentalService.RentCar(
                     new RentCarModel(
-                        Guid.NewGuid(), model.CarId, model.CustomerId, bookingNumber, model.StartDate, model.EndDate),
+                        Guid.NewGuid(), model.CarId, model.CustomerEmail, bookingNumber, model.StartDate, model.EndDate),
                     currentDate);
             }
             catch (Exception ex)
