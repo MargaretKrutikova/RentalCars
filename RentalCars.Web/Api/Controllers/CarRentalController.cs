@@ -23,16 +23,22 @@ namespace RentalCars.Web.Api.Controllers
         }
 
         [HttpGet("available")]
-        public async Task<IEnumerable<CarOutputModel>> GetAvailableCars(
+        public async Task<IActionResult> GetAvailableCars(
             CarCategory category,
             DateTime startDate,
             DateTime endDate)
         {
             var currentDate = DateTime.Now;
-            var cars = await _carRentalService.FindAvailableCars(category, startDate, endDate, currentDate);
 
-            return cars.Select(
-                car => new CarOutputModel(car.Id, car.Category, car.Model, car.Mileage));
+            try
+            {
+                var cars = await _carRentalService.FindAvailableCars(category, startDate, endDate, currentDate);
+                return Ok(cars.Select(car => new CarOutputModel(car.Id, car.Category, car.Model, car.Mileage)));
+            }
+            catch (Exception ex)
+            {
+                return this.DomainExceptionToResult(ex);
+            }
         }
 
         [HttpPost("rent")]

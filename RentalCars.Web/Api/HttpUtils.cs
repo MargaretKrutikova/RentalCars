@@ -13,6 +13,7 @@ namespace RentalCars.Web.Api
                 BookingNotFound => controller.NotFound("Booking not found."),
                 EmailAlreadyExists => controller.BadRequest("Email already registered"),
                 CarNotAvailable => controller.BadRequest("Car is not available"),
+                DateRangeInvalid => controller.BadRequest("Date range is invalid"),
                 _ => controller.StatusCode(500)
             };
     }
