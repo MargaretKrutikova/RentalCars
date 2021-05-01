@@ -1,6 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using RentalCars.Web.Business.Exceptions;
 using RentalCars.Web.Data;
 
 namespace RentalCars.Web.Business.Services
@@ -20,9 +20,8 @@ namespace RentalCars.Web.Business.Services
                 !await _context.Customers.AnyAsync(c => c.Email == customer.Email);
             
             if (!isUniqueCustomer)
-            {
-                throw new Exception("Email already exists");
-            }
+                throw new EmailAlreadyExists();
+
             await _context.Customers.AddAsync(customer);
         }
     }

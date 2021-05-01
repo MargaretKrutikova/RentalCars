@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using RentalCars.Web.Business.Exceptions;
 using RentalCars.Web.Business.Models;
 using RentalCars.Web.Data;
 
@@ -24,23 +25,21 @@ namespace RentalCars.Web.Business.Services
 
         public async Task ReturnCar(ReturnCarModel model)
         {
-            var currentRental = await 
+            var booking = await 
                 _context.Bookings.FirstOrDefaultAsync(
                     rental => rental.BookingNumber == model.BookingNumber && rental.CustomerId == model.CustomerId);
 
-            if (currentRental == null)
-            {
-                throw new Exception("Rental is not found");
-            }
+            if (booking == null)
+                throw new BookingNotFound();
 
             var returnedCar = 
-                await _context.Cars.FirstAsync(car => car.Id == currentRental.CarId);
+                await _context.Cars.FirstAsync(car => car.Id == booking.CarId);
 
             var returnRental = new RentalReturn()
             {
                 Id = Guid.NewGuid(),
                 Mileage = model.Mileage,
-                RentalBooking = currentRental,
+                RentalBooking = booking,
                 Price = 100.0m,
                 ReturnDate = model.ReturnDate
             };
@@ -52,20 +51,18 @@ namespace RentalCars.Web.Business.Services
 
         public async Task RentCar(RentCarModel model)
         {
-            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == model.CustomerId);
+            var customer = 
+                await _context.Customers.FirstOrDefaultAsync(c => c.Id == model.CustomerId);
+            
             if (customer == null)
-            {
-                throw new Exception("Customer doesnt exist");
-            }
+                throw new CustomerNotFound();
 
             var carToRent =
                 await FindAvailableCarsForRange(model.StartDate, model.EndDate)
                     .FirstOrDefaultAsync(car => car.Id == model.CarId);
 
             if (carToRent == null)
-            {
-                throw new Exception("Car can't be found or is not available for the current period");
-            }
+                throw new CarNotAvailable();
 
             var booking = new RentalBooking()
             {
