@@ -1,4 +1,4 @@
-namespace RentalCars.Data
+namespace RentalCars.Web.Data
 {
     public enum CarCategory
     {

@@ -19,4 +19,13 @@
   <ItemGroup>
     <None Remove="Data\rentalcars.db" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RentalCars.Business\RentalCars.Business.csproj" />
+    <ProjectReference Include="..\RentalCars.Data\RentalCars.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Api" />
+  </ItemGroup>
 </Project>

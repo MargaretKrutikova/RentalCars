@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
-namespace RentalCars.Data
+namespace RentalCars.Web.Data
 {
     public class RentalCarsDbContext : DbContext
     {

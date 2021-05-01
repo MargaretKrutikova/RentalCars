@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RentalCars.Data
+namespace RentalCars.Web.Data
 {
     public class Car
     {
