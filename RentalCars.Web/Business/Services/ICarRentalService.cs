@@ -10,6 +10,6 @@ namespace RentalCars.Web.Business.Services
     {
         Task<List<Car>> FindAvailableCars(CarCategory category, DateTime startDate,DateTime endDate);
         Task RentCar(RentCarModel model);
-        Task ReturnCar(ReturnCarModel model);
+        Task<RentalReturn> ReturnCar(ReturnCarModel model);
     }
 }

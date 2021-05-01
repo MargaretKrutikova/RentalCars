@@ -11,10 +11,14 @@ namespace RentalCars.Web.Business.Services
 {
     public class CarRentalService : ICarRentalService
     {
+        private readonly IRentalPriceCalculator _priceCalculator;
         private readonly RentalCarsDbContext _context;
 
-        public CarRentalService(RentalCarsDbContext context)
+        public CarRentalService(
+            IRentalPriceCalculator priceCalculator,
+            RentalCarsDbContext context)
         {
+            _priceCalculator = priceCalculator;
             _context = context;
         }
 
@@ -23,7 +27,7 @@ namespace RentalCars.Web.Business.Services
                 .Where(car => car.Category == category)
                 .ToListAsync();
 
-        public async Task ReturnCar(ReturnCarModel model)
+        public async Task<RentalReturn> ReturnCar(ReturnCarModel model)
         {
             var booking = await 
                 _context.Bookings.FirstOrDefaultAsync(
@@ -35,18 +39,23 @@ namespace RentalCars.Web.Business.Services
             var returnedCar = 
                 await _context.Cars.FirstAsync(car => car.Id == booking.CarId);
 
-            var returnRental = new RentalReturn()
+            var rentalDays = (model.ReturnDate - booking.StartDate).Days;
+            var price = _priceCalculator.CalculatePrice(returnedCar.Category, rentalDays, model.Mileage);
+            
+            var rentalReturn = new RentalReturn
             {
-                Id = Guid.NewGuid(),
+                Id = booking.Id,
                 Mileage = model.Mileage,
                 RentalBooking = booking,
-                Price = 100.0m,
+                Price = price,
                 ReturnDate = model.ReturnDate
             };
-            
+            await _context.Returns.AddAsync(rentalReturn);
+
             returnedCar.Mileage += model.Mileage;
-            await _context.Returns.AddAsync(returnRental);
             await _context.SaveChangesAsync();
+            
+            return rentalReturn;
         }
 
         public async Task RentCar(RentCarModel model)
