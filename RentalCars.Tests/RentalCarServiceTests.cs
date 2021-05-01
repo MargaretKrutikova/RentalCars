@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Moq;
 using RentalCars.Web.Api.Controllers;
 using RentalCars.Web.Business.Exceptions;
 using RentalCars.Web.Business.Models;
@@ -50,24 +51,23 @@ namespace RentalCars.Tests
             context.SaveChanges();
         }
 
-        private static async Task AddBooking(RentalCarsDbContext context, Car car, string startDate, string endDate)
+        private static async Task<RentalBooking> AddBooking(RentalCarsDbContext context, Car car, string startDate, string endDate)
         {
             var customer = context.Customers.First();
 
-            var bookings = new RentalBooking[]
+            var booking = new RentalBooking
             {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    CarId = car.Id,
-                    StartDate = DateTime.Parse(startDate),
-                    EndDate = DateTime.Parse(endDate),
-                    CustomerId = customer.Id
-                }
+                Id = Guid.NewGuid(),
+                CarId = car.Id,
+                BookingNumber = "ABC",
+                StartDate = DateTime.Parse(startDate),
+                EndDate = DateTime.Parse(endDate),
+                CustomerId = customer.Id
             };
 
-            await context.Bookings.AddRangeAsync(bookings);
+            await context.Bookings.AddAsync(booking);
             await context.SaveChangesAsync();
+            return booking;
         }
         
         [Fact]
@@ -75,7 +75,7 @@ namespace RentalCars.Tests
         {
             await using var context = new RentalCarsDbContext(ContextOptions);
             
-            var service = new CarRentalService(context);
+            var service = new CarRentalService(new Mock<IRentalPriceCalculator>().Object, context);
             var firstCar = context.Cars.First();
             var customer = context.Customers.First();
 
@@ -102,7 +102,7 @@ namespace RentalCars.Tests
         {
             await using var context = new RentalCarsDbContext(ContextOptions);
 
-            var service = new CarRentalService(context);
+            var service = new CarRentalService(new Mock<IRentalPriceCalculator>().Object, context);
             var firstCar = context.Cars.First();
             var customer = context.Customers.First();
 
@@ -127,7 +127,7 @@ namespace RentalCars.Tests
         {
             await using var context = new RentalCarsDbContext(ContextOptions);
 
-            var service = new CarRentalService(context);
+            var service = new CarRentalService(new Mock<IRentalPriceCalculator>().Object, context);
             var firstCar = context.Cars.First();
 
             await AddBooking(context, firstCar, bookingStartDate, bookingEndDate);
@@ -148,7 +148,7 @@ namespace RentalCars.Tests
         {
             await using var context = new RentalCarsDbContext(ContextOptions);
 
-            var service = new CarRentalService(context);
+            var service = new CarRentalService(new Mock<IRentalPriceCalculator>().Object, context);
             var firstCar = context.Cars.First();
 
             await AddBooking(context, firstCar, bookingStartDate, bookingEndDate);
@@ -161,6 +161,49 @@ namespace RentalCars.Tests
 
             Assert.Single(availableCars);
             Assert.Contains(availableCars, car => car.Id == firstCar.Id);
+        }
+        
+        [Fact]
+        public async void ReturnCar_AddsRentalReturn_ForExistingBookings()
+        {
+            await using var context = new RentalCarsDbContext(ContextOptions);
+            
+            var service = new CarRentalService(new Mock<IRentalPriceCalculator>().Object, context);
+            var customer = context.Customers.First();
+
+            var booking = 
+                await AddBooking(context, context.Cars.First(), "2021-05-05", "2021-06-05");
+
+            var returnDate = DateTime.Parse("2021-06-01");
+            var rentalReturn = 
+                await service.ReturnCar(new ReturnCarModel(booking.BookingNumber, customer.Id, returnDate, 100.0f));
+
+            Assert.True(context.Returns.Contains(rentalReturn));
+        }
+        
+        [Fact]
+        public async void ReturnCar_CalculatesReturnPriceCorrectly_ForRentalPeriodAndMileage()
+        {
+            await using var context = new RentalCarsDbContext(ContextOptions);
+
+            var car = context.Cars.First();
+            
+            var priceCalculator = new Mock<IRentalPriceCalculator>();
+            priceCalculator
+                .Setup(x => x.CalculatePrice(car.Category, 12, 89.3f))
+                .Returns(345.0m);
+            
+            var service = new CarRentalService(priceCalculator.Object, context);
+            var customer = context.Customers.First();
+
+            var booking = 
+                await AddBooking(context, car, "2021-05-05", "2021-06-05");
+
+            var returnDate = DateTime.Parse("2021-05-17");
+            var rentalReturn = 
+                await service.ReturnCar(new ReturnCarModel(booking.BookingNumber, customer.Id, returnDate, 89.3f));
+
+            Assert.Equal(345.0m, rentalReturn.Price);
         }
     }
 }
