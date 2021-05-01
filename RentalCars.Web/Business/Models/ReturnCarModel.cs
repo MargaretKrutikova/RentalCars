@@ -4,7 +4,7 @@ namespace RentalCars.Web.Business.Models
 {
     public record ReturnCarModel(
         string BookingNumber,
-        Guid CustomerId,
+        string CustomerEmail,
         DateTime ReturnDate,
         float Mileage);
 }

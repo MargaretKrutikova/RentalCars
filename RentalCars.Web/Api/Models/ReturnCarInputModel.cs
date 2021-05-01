@@ -9,7 +9,7 @@ namespace RentalCars.Web.Api.Models
         public string BookingNumber { get; init; } 
     
         [Required]
-        public Guid CustomerId { get; init; } 
+        public string CustomerEmail { get; init; } 
     
         [Required]
         public float Mileage { get; init; } 

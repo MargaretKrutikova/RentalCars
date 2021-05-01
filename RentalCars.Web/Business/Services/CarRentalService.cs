@@ -36,7 +36,7 @@ namespace RentalCars.Web.Business.Services
         {
             var booking = await 
                 _context.Bookings.FirstOrDefaultAsync(
-                    rental => rental.BookingNumber == model.BookingNumber && rental.CustomerId == model.CustomerId);
+                    rental => rental.BookingNumber == model.BookingNumber && rental.Customer.Email == model.CustomerEmail);
 
             if (booking == null)
                 throw new BookingNotFound();

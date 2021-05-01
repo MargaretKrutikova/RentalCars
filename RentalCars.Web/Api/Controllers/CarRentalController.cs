@@ -70,7 +70,7 @@ namespace RentalCars.Web.Api.Controllers
             try
             {
                 var rentalReturn = await _carRentalService.ReturnCar(
-                    new ReturnCarModel(model.BookingNumber, model.CustomerId, returnDate, model.Mileage));
+                    new ReturnCarModel(model.BookingNumber, model.CustomerEmail, returnDate, model.Mileage));
                 
                 return Ok(new ReturnCarOutputModel(rentalReturn.Price));
             }
