@@ -266,4 +266,4 @@ POSTGRES.*
 mails/
 
 # db
-rentalcars.db
+rentalcars.db*
