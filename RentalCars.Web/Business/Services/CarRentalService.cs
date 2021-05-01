@@ -22,10 +22,15 @@ namespace RentalCars.Web.Business.Services
             _context = context;
         }
 
-        public Task<List<Car>> FindAvailableCars(CarCategory category, DateTime startDate, DateTime endDate)
-            => FindAvailableCarsForRange(startDate, endDate)
+        public Task<List<Car>> FindAvailableCars(
+            CarCategory category, DateTime startDate, DateTime endDate, DateTime currentDate)
+        {
+            AssertRentalRangeValid(startDate, endDate, currentDate);
+
+            return FindAvailableCarsForRange(startDate, endDate)
                 .Where(car => car.Category == category)
                 .ToListAsync();
+        }
 
         public async Task<RentalReturn> ReturnCar(ReturnCarModel model)
         {
@@ -58,8 +63,9 @@ namespace RentalCars.Web.Business.Services
             return rentalReturn;
         }
 
-        public async Task RentCar(RentCarModel model)
+        public async Task RentCar(RentCarModel model, DateTime currentDate)
         {
+            AssertRentalRangeValid(model.StartDate, model.EndDate, currentDate);
             var customer = 
                 await _context.Customers.FirstOrDefaultAsync(c => c.Id == model.CustomerId);
             
@@ -94,5 +100,11 @@ namespace RentalCars.Web.Business.Services
                      endDate >= booking.StartDate && endDate <= booking.EndDate ||
                      booking.StartDate >= startDate && booking.EndDate <= endDate))
                 );
+        
+        private static void AssertRentalRangeValid(DateTime startDate, DateTime endDate, DateTime currentDate)
+        {
+            if (startDate >= endDate || startDate < currentDate)
+                throw new DateRangeInvalid();
+        }
     }
 }

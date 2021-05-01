@@ -79,9 +79,10 @@ namespace RentalCars.Tests
 
             var startDate = DateTime.Parse("2021-05-05");
             var endDate = DateTime.Parse("2021-06-05");
-                
+            var currentDate = DateTime.Parse("2021-05-04");  
+            
             await service.RentCar(new RentCarModel(
-                Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate));
+                Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate), currentDate);
 
             var booking = context.Bookings.First();
             Assert.Equal(firstCar.Id, booking.CarId);
@@ -109,10 +110,11 @@ namespace RentalCars.Tests
             
             var startDate = DateTime.Parse("2021-04-10");
             var endDate = DateTime.Parse("2021-05-10");
+            var currentDate = DateTime.Parse("2021-04-04");  
 
             async Task RentCarFn() => 
                 await service.RentCar(new RentCarModel(
-                    Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate));
+                    Guid.NewGuid(), firstCar.Id, customer.Id, "ABC", startDate, endDate), currentDate);
 
             await Assert.ThrowsAsync<CarNotAvailable>(RentCarFn);
         }
@@ -134,9 +136,10 @@ namespace RentalCars.Tests
             
             var startDate = DateTime.Parse("2021-04-10");
             var endDate = DateTime.Parse("2021-05-10");
+            var currentDate = DateTime.Parse("2021-04-10");
 
             var availableCars =
-                await service.FindAvailableCars(firstCar.Category, startDate, endDate);
+                await service.FindAvailableCars(firstCar.Category, startDate, endDate, currentDate);
 
             Assert.DoesNotContain(availableCars, car => car.Id == firstCar.Id);
         }
@@ -155,9 +158,10 @@ namespace RentalCars.Tests
             
             var startDate = DateTime.Parse("2021-04-30");
             var endDate = DateTime.Parse("2021-05-09");
+            var currentDate = DateTime.Parse("2021-04-10");
 
             var availableCars =
-                await service.FindAvailableCars(firstCar.Category, startDate, endDate);
+                await service.FindAvailableCars(firstCar.Category, startDate, endDate, currentDate);
 
             Assert.Single(availableCars);
             Assert.Contains(availableCars, car => car.Id == firstCar.Id);

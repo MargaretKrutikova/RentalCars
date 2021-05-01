@@ -6,4 +6,5 @@ namespace RentalCars.Web.Business.Exceptions
     public class CustomerNotFound : Exception {}
     public class BookingNotFound : Exception {}
     public class CarNotAvailable : Exception {}
+    public class DateRangeInvalid : Exception {}
 }
