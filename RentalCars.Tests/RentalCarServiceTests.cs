@@ -1,7 +1,10 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using RentalCars.Web.Api.Controllers;
+using RentalCars.Web.Business.Exceptions;
 using RentalCars.Web.Business.Models;
 using RentalCars.Web.Business.Services;
 using RentalCars.Web.Data;
@@ -14,7 +17,7 @@ namespace RentalCars.Tests
         public RentalCarServiceTests()
         {
             ContextOptions = new DbContextOptionsBuilder<RentalCarsDbContext>()
-                .UseInMemoryDatabase("TestDatabase")
+                .UseInMemoryDatabase("RentalCars")
                 .Options;
             Seed();
         }
@@ -24,6 +27,14 @@ namespace RentalCars.Tests
         private void Seed()
         {
             using var context = new RentalCarsDbContext(ContextOptions);
+            
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+            
+            context.Bookings.RemoveRange(context.Bookings);
+            context.Cars.RemoveRange(context.Cars);
+            context.Customers.RemoveRange(context.Customers);
+            context.Returns.RemoveRange(context.Returns);
             
             var cars = new Car[]
             {
@@ -38,6 +49,26 @@ namespace RentalCars.Tests
             context.Customers.AddRange(customers);
             context.SaveChanges();
         }
+
+        private static async Task AddBooking(RentalCarsDbContext context, Car car, string startDate, string endDate)
+        {
+            var customer = context.Customers.First();
+
+            var bookings = new RentalBooking[]
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    CarId = car.Id,
+                    StartDate = DateTime.Parse(startDate),
+                    EndDate = DateTime.Parse(endDate),
+                    CustomerId = customer.Id
+                }
+            };
+
+            await context.Bookings.AddRangeAsync(bookings);
+            await context.SaveChangesAsync();
+        }
         
         [Fact]
         public async void RentCar_RegistersBooking_For_Available_Car()
@@ -48,8 +79,8 @@ namespace RentalCars.Tests
             var firstCar = context.Cars.First();
             var customer = context.Customers.First();
 
-            var startDate = DateTime.Today;
-            var endDate = startDate.AddDays(10);
+            var startDate = DateTime.Parse("2021-05-05");
+            var endDate = DateTime.Parse("2021-06-05");
                 
             await service.RentCar(new RentCarModel(firstCar.Id, customer.Id, "ABC", startDate, endDate));
 
@@ -59,6 +90,77 @@ namespace RentalCars.Tests
             Assert.Equal(startDate, booking.StartDate);
             Assert.Equal(endDate, booking.EndDate);
             Assert.Equal("ABC", booking.BookingNumber);
+        }
+
+        [Theory]
+        [InlineData("2021-04-01", "2021-04-26")]
+        [InlineData("2021-05-01", "2021-05-23")]
+        [InlineData("2021-04-13", "2021-05-01")]
+        [InlineData("2021-04-10", "2021-05-01")]
+        [InlineData("2021-05-10", "2021-05-14")]
+        public async void RentCar_ThrowsNonAvailable_IfDateRangeOverlapsWithAnotherBooking(string bookingStartDate, string bookingEndDate)
+        {
+            await using var context = new RentalCarsDbContext(ContextOptions);
+
+            var service = new CarRentalService(context);
+            var firstCar = context.Cars.First();
+            var customer = context.Customers.First();
+
+            await AddBooking(context, firstCar, bookingStartDate, bookingEndDate);
+            
+            var startDate = DateTime.Parse("2021-04-10");
+            var endDate = DateTime.Parse("2021-05-10");
+
+            async Task RentCarFn() => 
+                await service.RentCar(new RentCarModel(firstCar.Id, customer.Id, "ABC", startDate, endDate));
+
+            await Assert.ThrowsAsync<CarNotAvailable>(RentCarFn);
+        }
+        
+        [Theory]
+        [InlineData("2021-04-01", "2021-04-26")]
+        [InlineData("2021-05-01", "2021-05-23")]
+        [InlineData("2021-04-13", "2021-05-01")]
+        [InlineData("2021-04-10", "2021-05-01")]
+        [InlineData("2021-05-10", "2021-05-14")]
+        public async void FindAvailableCars_ExcludesCars_IfDateRangeOverlapsWithAnotherBooking(string bookingStartDate, string bookingEndDate)
+        {
+            await using var context = new RentalCarsDbContext(ContextOptions);
+
+            var service = new CarRentalService(context);
+            var firstCar = context.Cars.First();
+
+            await AddBooking(context, firstCar, bookingStartDate, bookingEndDate);
+            
+            var startDate = DateTime.Parse("2021-04-10");
+            var endDate = DateTime.Parse("2021-05-10");
+
+            var availableCars =
+                await service.FindAvailableCars(firstCar.Category, startDate, endDate);
+
+            Assert.DoesNotContain(availableCars, car => car.Id == firstCar.Id);
+        }
+        
+        [Theory]
+        [InlineData("2021-04-01", "2021-04-26")]
+        [InlineData("2021-05-10", "2021-05-23")]
+        public async void FindAvailableCars_ReturnsCars_AvailableForTheBookingRange(string bookingStartDate, string bookingEndDate)
+        {
+            await using var context = new RentalCarsDbContext(ContextOptions);
+
+            var service = new CarRentalService(context);
+            var firstCar = context.Cars.First();
+
+            await AddBooking(context, firstCar, bookingStartDate, bookingEndDate);
+            
+            var startDate = DateTime.Parse("2021-04-30");
+            var endDate = DateTime.Parse("2021-05-09");
+
+            var availableCars =
+                await service.FindAvailableCars(firstCar.Category, startDate, endDate);
+
+            Assert.Single(availableCars);
+            Assert.Contains(availableCars, car => car.Id == firstCar.Id);
         }
     }
 }

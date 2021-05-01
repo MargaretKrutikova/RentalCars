@@ -80,9 +80,10 @@ namespace RentalCars.Web.Business.Services
         private IQueryable<Car> FindAvailableCarsForRange(DateTime startDate, DateTime endDate)
             => _context.Cars
                 .Where(car => !car.Bookings.Any(booking =>
-                    booking.RentalReturn != null &&
-                    startDate >= booking.StartDate && startDate <= booking.EndDate ||
-                    endDate >= booking.StartDate && endDate <= booking.EndDate ||
-                    booking.StartDate >= startDate && booking.EndDate <= endDate));
+                    booking.RentalReturn == null &&
+                    (startDate >= booking.StartDate && startDate <= booking.EndDate ||
+                     endDate >= booking.StartDate && endDate <= booking.EndDate ||
+                     booking.StartDate >= startDate && booking.EndDate <= endDate))
+                );
     }
 }
