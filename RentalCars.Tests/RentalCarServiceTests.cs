@@ -180,7 +180,7 @@ namespace RentalCars.Tests
 
             var returnDate = DateTime.Parse("2021-06-01");
             var rentalReturn = 
-                await service.ReturnCar(new ReturnCarModel(booking.BookingNumber, customer.Id, returnDate, 100.0f));
+                await service.ReturnCar(new ReturnCarModel(booking.BookingNumber, customer.Email, returnDate, 100.0f));
 
             Assert.True(context.Returns.Contains(rentalReturn));
         }
@@ -205,7 +205,7 @@ namespace RentalCars.Tests
 
             var returnDate = DateTime.Parse("2021-05-17");
             var rentalReturn = 
-                await service.ReturnCar(new ReturnCarModel(booking.BookingNumber, customer.Id, returnDate, 89.3f));
+                await service.ReturnCar(new ReturnCarModel(booking.BookingNumber, customer.Email, returnDate, 89.3f));
 
             Assert.Equal(345.0m, rentalReturn.Price);
         }
