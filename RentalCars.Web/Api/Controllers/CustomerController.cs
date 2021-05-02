@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RentalCars.Web.Api.Models;
@@ -35,6 +36,38 @@ namespace RentalCars.Web.Api.Controllers
             }
 
             return Ok(customerId);
+        }
+        
+        [HttpGet("{customerId}/rentals")]
+        public async Task<IActionResult> GetCustomerRentals(Guid customerId)
+        {
+            try
+            {
+                var bookings = await _customerService.GerCustomerRentals(customerId);
+                var output = new CustomerBookingsOutputModel (bookings.Select(ToBookingOutputModel).ToList());
+                
+                return Ok(output);
+            }
+            catch (Exception ex)
+            {
+                return this.DomainExceptionToResult(ex);
+            }
+        }
+
+        private static CustomerBookingOutputModel ToBookingOutputModel(RentalBooking booking)
+        {
+            var returnRentalModel = booking.RentalReturn != null
+                ? new BookingReturnOutputModel(booking.RentalReturn.ReturnDate, booking.RentalReturn.Mileage,
+                    booking.RentalReturn.Price)
+                : null;
+
+            return new CustomerBookingOutputModel(
+                booking.BookingNumber, 
+                booking.Car.Model, 
+                booking.Car.Category,
+                booking.StartDate,
+                booking.EndDate, 
+                returnRentalModel);
         }
     }
 }
