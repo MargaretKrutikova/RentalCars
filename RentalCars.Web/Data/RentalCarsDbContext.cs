@@ -36,7 +36,7 @@ namespace RentalCars.Web.Data
             {
                 new()
                 {
-                    Id = Guid.NewGuid(), Email = "test@testsson.com",
+                    Id = Guid.Parse("2c1366e2-f73c-4aee-8608-d510c27a9ad5"), Email = "test@testsson.com",
                     DateOfBirth = DateTime.Parse("1990-01-01")
                 }
             };
