@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RentalCars.Web.Data;
+using Serilog;
+using Serilog.Events;
 
 namespace RentalCars.Web
 {
@@ -26,11 +28,30 @@ namespace RentalCars.Web
                 logger.LogError(ex, "Failed creating or migrating the Database");
             }
 
-            host.Run();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Verbose)
+                .Enrich.FromLogContext()
+                .WriteTo.File("logs/log.txt")
+                .CreateLogger();
+
+            try
+            {
+                Log.Information("Starting web host");
+                host.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog() 
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
