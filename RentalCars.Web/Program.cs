@@ -2,7 +2,6 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using RentalCars.Web.Data;
 using Serilog;
 using Serilog.Events;
@@ -18,22 +17,21 @@ namespace RentalCars.Web
             using var scope = host.Services.CreateScope();
             var services = scope.ServiceProvider;
 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Verbose)
+                .Enrich.FromLogContext()
+                .WriteTo.File("logs/log.txt")
+                .CreateLogger();
+            
             try
             {
                 DbInitializer.Initialize(services).Wait();
             }
             catch (Exception ex)
             {
-                var logger = services.GetRequiredService<ILogger<Program>>();
-                logger.LogError(ex, "Failed creating or migrating the Database");
+                Log.Error(ex, "Failed creating or migrating the Database");
             }
-
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Verbose)
-                .Enrich.FromLogContext()
-                .WriteTo.File("logs/log.txt")
-                .CreateLogger();
-
+     
             try
             {
                 Log.Information("Starting web host");
